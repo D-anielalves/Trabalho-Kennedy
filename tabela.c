@@ -28,3 +28,40 @@ void tabela_destruir(Tabela *tabela) {
     tabela->slots = NULL;
     tabela->total_slots = 0;
 }
+int tabela_localizar(Tabela *tabela, int chave) {
+    int inicial = hash_dobra(chave, tabela->total_slots);
+    for(int i = 0; i < tabela->total_slots; i++) {
+        int posicao = (inicial + i) % tabela->total_slots;
+        if (tabela->slots[posicao].estado == VAZIO) {
+            return -1;
+        }
+        if (tabela->slots[posicao].estado == OCUPADO &&
+             tabela->slots[posicao].chave == chave) {
+            return posicao;
+        }
+    }
+    return -1;
+}
+int tabela_inserir(Tabela *tabela, int chave, Produto produto) {
+   if(chave <= 0|| tabela == NULL|| tabela->slots == NULL){
+        return -1;
+   }
+   if (tabela_localizar(tabela, chave) != -1) {
+        return 0;
+    }
+    int inicial = hash_dobra(chave, tabela->total_slots);
+    if (tabela->slots[inicial].estado == OCUPADO){
+        tabela->colisoes++;
+    }
+    for(int i = 0; i < tabela->total_slots; i++) {
+        int posicao = (inicial + i) % tabela->total_slots;
+        if (tabela->slots[posicao].estado != OCUPADO) {
+            tabela->slots[posicao].chave = chave;
+            tabela->slots[posicao].produto = produto;
+            tabela->slots[posicao].estado = OCUPADO;
+            tabela->total_ocupados++;
+            return 1;
+        }
+    }
+    return -1;
+}

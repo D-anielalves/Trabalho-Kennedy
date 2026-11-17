@@ -30,4 +30,6 @@ typedef struct{
 int hash_dobra(int chave, int total_slots);
 int tabela_criar(Tabela *tabela, int capacidade);
 void tabela_destruir(Tabela *tabela);
+int tabela_localizar(Tabela *tabela, int chave);
+int tabela_inserir(Tabela *tabela, int chave, Produto produto);
 #endif

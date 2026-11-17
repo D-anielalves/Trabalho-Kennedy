@@ -1,14 +1,56 @@
-#include "tabela.h"
-#include <stdio.h>
 
-int main() {
+#include <stdio.h>
+#include "tabela.h"
+
+int main(void) {
+
     Tabela tabela;
+
     if (!tabela_criar(&tabela, 11)) {
-        printf("Falha ao criar a tabela.\n");
+        printf("Erro ao criar tabela!\n");
         return 1;
     }
-    printf("Tabela criada com sucesso. Capacidade: %d\n", tabela.total_slots);
-    printf("Estado do slot 0: %d\n", tabela.slots[0].estado);
-    printf("Estado do slot 10: %d\n", tabela.slots[10].estado);
+
+    // Criando três produtos
+    Produto p1 = {"Teclado", 10, 100.00};
+    Produto p2 = {"Mouse", 15, 50.00};
+    Produto p3 = {"Monitor", 5, 800.00};
+
+    // Inserindo os produtos
+    printf("Insercao:\n");
+
+    printf("123456: %d\n", tabela_inserir(&tabela, 123456, p1));
+    printf("456123: %d\n", tabela_inserir(&tabela, 456123, p2));
+    printf("579: %d\n", tabela_inserir(&tabela, 579, p3));
+
+    // Verificando colisões
+    printf("\nColisoes: %d\n", tabela.colisoes);
+
+    // Buscando os produtos
+    printf("\nBusca:\n");
+
+    printf("123456: indice %d\n",
+           tabela_localizar(&tabela, 123456));
+
+    printf("456123: indice %d\n",
+           tabela_localizar(&tabela, 456123));
+
+    printf("579: indice %d\n",
+           tabela_localizar(&tabela, 579));
+
+    // Buscando uma chave inexistente
+    printf("999: indice %d\n",
+           tabela_localizar(&tabela, 999));
+
+    // Tentando inserir uma chave duplicada
+    printf("\nInserindo duplicata:\n");
+
+    printf("123456: %d\n",
+           tabela_inserir(&tabela, 123456, p1));
+
+    printf("Total ocupados: %d\n", tabela.total_ocupados);
+
+    tabela_destruir(&tabela);
+
     return 0;
 }
