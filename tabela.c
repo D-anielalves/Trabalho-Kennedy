@@ -171,3 +171,17 @@ void tabela_exibir(const Tabela *tabela) {
         }
     }
 }
+void tabela_listar(const Tabela *tabela) {
+    if (tabela == NULL || tabela->slots == NULL || tabela->total_ocupados == 0) {
+        printf("(estoque vazio)\n");
+        return;
+    }
+    printf("%-8s %-24s %8s %10s\n", "Codigo", "Nome", "Qtd", "Preco");
+    for (int i = 0; i < tabela->total_slots; i++) {
+        const Slot *slot = &tabela->slots[i];
+        if (slot->estado == OCUPADO) {
+            printf("%-8d %-24s %8d %10.2f\n", slot->chave, slot->produto.nome,
+                   slot->produto.quantidade, slot->produto.preco);
+        }
+    }
+}
