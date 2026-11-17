@@ -25,8 +25,9 @@ typedef struct{
     int total_ocupados;
     int colisoes;
     int rehashes;
-}tabela;
+}Tabela;
 
 int hash_dobra(int chave, int total_slots);
-
+int tabela_criar(Tabela *tabela, int capacidade);
+void tabela_destruir(Tabela *tabela);
 #endif
