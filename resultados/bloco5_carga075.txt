@@ -1,0 +1,10 @@
+Config 122: E1.2, H4 (dobra), C2 (linear), A2 (estoque)
+Bloco da dobra=100000 | limite de carga=0.75 | capacidade inicial=11 | 5 repeticoes (medias)
+
+Registros     Cap.  alpha  Colisoes   Ins(ms)   BuscaOk  BuscaAus    SondOk   SondAus  Rehash
+      100      176  0.568        50    0.0132    0.0020    0.0036      1.57      2.80     4.0
+     1000     1408  0.710       560    0.2344    0.0317    0.0516      2.30      6.31     7.0
+    10000    22528  0.444      5358    4.2161    0.2526    0.4157      1.40      2.16    11.0
+
+Ins/BuscaOk/BuscaAus = tempo total (ms) das N operacoes.
+SondOk/SondAus = posicoes visitadas por busca (media).
