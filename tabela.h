@@ -1,7 +1,12 @@
 #ifndef TABELA_H
 #define TABELA_H
 #define CAPACIDADE_INICIAL 11
-#define LIMITE_CARGA 0.5 
+#ifndef LIMITE_CARGA
+#define LIMITE_CARGA 0.5   
+#endif
+#ifndef BLOCO_DOBRA
+#define BLOCO_DOBRA 1000   
+#endif
 
 typedef enum {
     VAZIO,
@@ -25,9 +30,10 @@ typedef struct {
     Slot *slots;
     int total_slots;     
     int total_ocupados;  
-    int total_usados;   
+    int total_usados;    
     int colisoes;
     int rehashes;
+    int ultimas_sondagens;
 } Tabela;
 
 int hash_dobra(int chave, int total_slots);

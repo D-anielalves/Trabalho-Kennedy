@@ -2,19 +2,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* ---------- H4: hash por dobra ----------
+ * Divide a chave em grupos de digitos (BLOCO_DOBRA = 1000 => 3 digitos, da direita para a esquerda),
+ * soma os grupos e aplica o resto da divisao por total_slots.
+ * Ex.: 123456 -> 456 + 123 = 579 -> 579 % 11 = 7 */
 int hash_dobra(int chave, int total_slots) {
     int soma = 0;
     while (chave > 0) {
-        soma += chave % 1000;
-        chave /= 1000;
+        soma += chave % BLOCO_DOBRA;
+        chave /= BLOCO_DOBRA;
     }
     return soma % total_slots;
 }
+
+/* ---------- criacao e destruicao ----------
+ * tabela_criar: 1 = sucesso, 0 = falha (capacidade invalida ou sem memoria) */
 int tabela_criar(Tabela *tabela, int capacidade) {
     if (tabela == NULL || capacidade <= 0) {
         return 0;
     }
-    tabela->slots = (Slot *)calloc(capacidade, sizeof(Slot));
+    tabela->slots = (Slot *)calloc(capacidade, sizeof(Slot)); /* tudo VAZIO (= 0) */
     if (tabela->slots == NULL) {
         return 0;
     }
@@ -23,8 +30,10 @@ int tabela_criar(Tabela *tabela, int capacidade) {
     tabela->total_usados = 0;
     tabela->colisoes = 0;
     tabela->rehashes = 0;
+    tabela->ultimas_sondagens = 0;
     return 1;
 }
+
 void tabela_destruir(Tabela *tabela) {
     if (tabela == NULL) {
         return;
@@ -40,8 +49,10 @@ int tabela_localizar(Tabela *tabela, int chave) {
         return -1;
     }
     int inicial = hash_dobra(chave, tabela->total_slots);
+    tabela->ultimas_sondagens = 0;
     for (int i = 0; i < tabela->total_slots; i++) {
         int posicao = (inicial + i) % tabela->total_slots;
+        tabela->ultimas_sondagens++;
         if (tabela->slots[posicao].estado == VAZIO) {
             return -1;
         }
@@ -58,7 +69,7 @@ static int tabela_colocar(Tabela *tabela, int chave, Produto produto) {
         int posicao = (inicial + i) % tabela->total_slots;
         if (tabela->slots[posicao].estado != OCUPADO) {
             if (tabela->slots[posicao].estado == VAZIO) {
-                tabela->total_usados++;  
+                tabela->total_usados++;  /* reaproveitar REMOVIDO nao gasta slot novo */
             }
             tabela->slots[posicao].chave = chave;
             tabela->slots[posicao].produto = produto;
@@ -77,15 +88,12 @@ int tabela_rehash(Tabela *tabela, int nova_capacidade) {
     if (novos == NULL) {
         return 0;
     }
-
     Slot *antigos = tabela->slots;
     int capacidade_antiga = tabela->total_slots;
-
     tabela->slots = novos;
     tabela->total_slots = nova_capacidade;
     tabela->total_ocupados = 0;
     tabela->total_usados = 0;
-
     for (int i = 0; i < capacidade_antiga; i++) {
         if (antigos[i].estado == OCUPADO) {
             tabela_colocar(tabela, antigos[i].chave, antigos[i].produto);
@@ -138,7 +146,6 @@ double tabela_fator_carga(const Tabela *tabela) {
     }
     return (double)tabela->total_ocupados / tabela->total_slots;
 }
-
 void tabela_exibir(const Tabela *tabela) {
     if (tabela == NULL || tabela->slots == NULL) {
         return;
@@ -151,7 +158,6 @@ void tabela_exibir(const Tabela *tabela) {
     printf("rehashes: %d\n", tabela->rehashes);
     printf("fator de carga: %.2f\n", tabela_fator_carga(tabela));
     printf("====================================\n");
-
     for (int i = 0; i < tabela->total_slots; i++) {
         const Slot *slot = &tabela->slots[i];
         printf("indice %d: ", i);
