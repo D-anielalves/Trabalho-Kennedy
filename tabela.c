@@ -1,5 +1,6 @@
 #include "tabela.h"
 #include <stdlib.h>
+#include <stdio.h>
 int hash_dobra(int chave, int total_slots) {
     int soma = 0;
     while (chave > 0) {
@@ -73,4 +74,53 @@ int tabela_remover(Tabela *tabela, int chave) {
     tabela->slots[posicao].estado = REMOVIDO;
     tabela->total_ocupados--;
     return 1;
+}
+int tabela_atualizar(Tabela *tabela, int chave, Produto produto) {
+    int posicao = tabela_localizar(tabela, chave);
+    if (posicao == -1) {
+        return 0;
+    }
+    tabela->slots[posicao].produto = produto;
+    return 1;
+}
+double tabela_fator_carga(const Tabela *tabela) {
+    if (tabela->total_slots == 0) {
+        return 0.0;
+    }
+    return (double)tabela->total_ocupados / tabela->total_slots;
+}
+void tabela_exibir(const Tabela *tabela){
+    if (tabela == NULL || tabela->slots == NULL) {
+        return;
+    }
+    printf("\n=========== Tabela Hash ===========\n");
+    printf("capacidade: %d\n", tabela->total_slots);
+    printf("ocupados: %d\n", tabela->total_ocupados);
+    printf("colisoes: %d\n", tabela->colisoes);
+    printf("rehashes: %d\n", tabela->rehashes);
+    printf("fator de carga: %.2f\n", tabela_fator_carga(tabela));
+    printf("====================================\n");
+    for (int i = 0; i < tabela->total_slots; i++) {
+        Slot slot = tabela->slots[i];
+        printf("indice %d: ", i);
+        if (slot.estado == VAZIO) {
+            printf("VAZIO\n");
+        } else if (slot.estado == REMOVIDO) {
+            printf("REMOVIDO\n");
+        } else if (slot.estado == OCUPADO) {
+            int origem = hash_dobra(slot.chave, tabela->total_slots);
+            printf("OCUPADO |");
+            printf("Origem: %d", origem);
+            printf(" | Chave: %d", slot.chave);
+            printf(" | Produto: %s", slot.produto.nome);
+            printf(" | Quantidade: %d", slot.produto.quantidade);
+            printf(" | Preco: %.2f\n", slot.produto.preco);
+
+        if (origem != i) {
+            printf(" DESLOCADO");
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 }

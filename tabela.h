@@ -33,4 +33,8 @@ void tabela_destruir(Tabela *tabela);
 int tabela_localizar(Tabela *tabela, int chave);
 int tabela_inserir(Tabela *tabela, int chave, Produto produto);
 int tabela_remover(Tabela *tabela, int chave);
+int tabela_atualizar(Tabela *tabela, int chave, Produto produto);
+double tabela_fator_carga(const Tabela *tabela);
+void tabela_exibir(const Tabela *tabela);
+
 #endif

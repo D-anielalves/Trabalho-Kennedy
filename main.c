@@ -78,6 +78,31 @@ printf("Total ocupados: %d\n", tabela.total_ocupados);
 printf("Colisoes: %d\n", tabela.colisoes);
 printf("Indice de 1006: %d\n", tabela_localizar(&tabela, 1006));
 
+printf("\n--- TESTE DE ATUALIZACAO ---\n");
+
+// Criando um novo produto
+Produto novo = {"Monitor Gamer", 15, 1500.00};
+
+// Atualizando a chave 579
+printf("Atualizar 579: %d\n",
+       tabela_atualizar(&tabela, 579, novo));
+
+// Conferindo quantidade de ocupados
+printf("Total ocupados: %d\n", tabela.total_ocupados);
+
+// Conferindo posição da chave
+printf("Indice de 579: %d\n",
+       tabela_localizar(&tabela, 579));
+
+// Tentando atualizar uma chave inexistente
+printf("Atualizar 999: %d\n",
+       tabela_atualizar(&tabela, 999, novo));
+
+// Exibindo a estrutura
+printf("\n--- ESTRUTURA DA TABELA ---\n");
+
+tabela_exibir(&tabela);
+
 
     tabela_destruir(&tabela);
 
