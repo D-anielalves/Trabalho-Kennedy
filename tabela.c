@@ -65,3 +65,12 @@ int tabela_inserir(Tabela *tabela, int chave, Produto produto) {
     }
     return -1;
 }
+int tabela_remover(Tabela *tabela, int chave) {
+    int posicao = tabela_localizar(tabela, chave);
+    if (posicao == -1) {
+        return 0;
+    }
+    tabela->slots[posicao].estado = REMOVIDO;
+    tabela->total_ocupados--;
+    return 1;
+}

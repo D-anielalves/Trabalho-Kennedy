@@ -32,4 +32,5 @@ int tabela_criar(Tabela *tabela, int capacidade);
 void tabela_destruir(Tabela *tabela);
 int tabela_localizar(Tabela *tabela, int chave);
 int tabela_inserir(Tabela *tabela, int chave, Produto produto);
+int tabela_remover(Tabela *tabela, int chave);
 #endif
