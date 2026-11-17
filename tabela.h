@@ -1,6 +1,7 @@
 #ifndef TABELA_H
 #define TABELA_H
-#define LIMITE_CARGA 0.5   
+#define CAPACIDADE_INICIAL 11
+#define LIMITE_CARGA 0.5 
 
 typedef enum {
     VAZIO,
@@ -22,9 +23,9 @@ typedef struct {
 
 typedef struct {
     Slot *slots;
-    int total_slots;   
+    int total_slots;     
     int total_ocupados;  
-    int total_usados;    
+    int total_usados;   
     int colisoes;
     int rehashes;
 } Tabela;
@@ -39,5 +40,6 @@ int tabela_atualizar(Tabela *tabela, int chave, Produto produto);
 int tabela_rehash(Tabela *tabela, int nova_capacidade);
 double tabela_fator_carga(const Tabela *tabela);
 void tabela_exibir(const Tabela *tabela);
+void tabela_listar(const Tabela *tabela);
 
 #endif

@@ -1,110 +1,125 @@
-
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "tabela.h"
+#define CODIGO_MAX 999999
 
+static int ler_linha(const char *msg, char *buf, size_t n) {
+    printf("%s", msg);
+    if (fgets(buf, (int)n, stdin) == NULL) {
+        return 0;
+    }
+    buf[strcspn(buf, "\n")] = '\0';
+    return 1;
+}
+static int ler_numero(const char *msg, double min, double max, double *saida) {
+    char buf[64], *fim;
+    if (!ler_linha(msg, buf, sizeof buf)) {
+        return 0;
+    }
+    errno = 0;
+    double valor = strtod(buf, &fim);
+    if (fim == buf || *fim != '\0' || errno != 0 || valor < min || valor > max) {
+        printf("Valor invalido (esperado entre %.0f e %.0f).\n", min, max);
+        return 0;
+    }
+    *saida = valor;
+    return 1;
+}
+static int ler_codigo(int *codigo) {
+    double v;
+    if (!ler_numero("Codigo do produto (1 a 999999): ", 1, CODIGO_MAX, &v)) {
+        return 0;
+    }
+    if (v != (int)v) {
+        printf("O codigo deve ser inteiro.\n");
+        return 0;
+    }
+    *codigo = (int)v;
+    return 1;
+}
+static int ler_produto(Produto *p) {
+    double qtd, preco;
+    if (!ler_linha("Nome: ", p->nome, sizeof p->nome) || p->nome[0] == '\0') {
+        printf("Nome invalido.\n");
+        return 0;
+    }
+    if (!ler_numero("Quantidade: ", 0, 1000000, &qtd) || qtd != (int)qtd) {
+        return 0;
+    }
+    if (!ler_numero("Preco: ", 0, 1000000, &preco)) {
+        return 0;
+    }
+    p->quantidade = (int)qtd;
+    p->preco = (float)preco;
+    return 1;
+}
 int main(void) {
-
     Tabela tabela;
-
-    if (!tabela_criar(&tabela, 11)) {
-        printf("Erro ao criar tabela!\n");
+    if (!tabela_criar(&tabela, CAPACIDADE_INICIAL)) {
+        printf("Erro ao criar a tabela.\n");
         return 1;
     }
-
-    // Criando três produtos
-    Produto p1 = {"Teclado", 10, 100.00};
-    Produto p2 = {"Mouse", 15, 50.00};
-    Produto p3 = {"Monitor", 5, 800.00};
-
-    // Inserindo os produtos
-    printf("Insercao:\n");
-
-    printf("123456: %d\n", tabela_inserir(&tabela, 123456, p1));
-    printf("456123: %d\n", tabela_inserir(&tabela, 456123, p2));
-    printf("579: %d\n", tabela_inserir(&tabela, 579, p3));
-
-    // Verificando colisões
-    printf("\nColisoes: %d\n", tabela.colisoes);
-
-    // Buscando os produtos
-    printf("\nBusca:\n");
-
-    printf("123456: indice %d\n",
-           tabela_localizar(&tabela, 123456));
-
-    printf("456123: indice %d\n",
-           tabela_localizar(&tabela, 456123));
-
-    printf("579: indice %d\n",
-           tabela_localizar(&tabela, 579));
-
-    // Buscando uma chave inexistente
-    printf("999: indice %d\n",
-           tabela_localizar(&tabela, 999));
-
-    // Tentando inserir uma chave duplicada
-    printf("\nInserindo duplicata:\n");
-
-    printf("123456: %d\n",
-           tabela_inserir(&tabela, 123456, p1));
-
-    printf("Total ocupados: %d\n", tabela.total_ocupados);
-
-printf("\n--- TESTE DE REMOCAO ---\n");
-
-// 1. Remover o produto do meio
-printf("Remocao: %d\n", tabela_remover(&tabela, 456123));
-
-// 2. Conferir quantos produtos restaram
-printf("Total ocupados: %d\n", tabela.total_ocupados);
-
-// 3. Buscar os produtos
-printf("Busca 123456: %d\n", tabela_localizar(&tabela, 123456));
-
-printf("Busca 579: %d\n", tabela_localizar(&tabela, 579));
-
-printf("Busca 456123: %d\n", tabela_localizar(&tabela, 456123));
-
-// 4. Tentar remover novamente
-printf("Remover novamente: %d\n", tabela_remover(&tabela, 456123));
-
-// 5. Inserir um novo produto
-Produto p4 = {"Fone", 20, 80.00};
-
-printf("Inserir 1006: %d\n", tabela_inserir(&tabela, 1006, p4));
-
-// 6. Conferir os contadores e a posição
-printf("Total ocupados: %d\n", tabela.total_ocupados);
-printf("Colisoes: %d\n", tabela.colisoes);
-printf("Indice de 1006: %d\n", tabela_localizar(&tabela, 1006));
-
-printf("\n--- TESTE DE ATUALIZACAO ---\n");
-
-// Criando um novo produto
-Produto novo = {"Monitor Gamer", 15, 1500.00};
-
-// Atualizando a chave 579
-printf("Atualizar 579: %d\n",
-       tabela_atualizar(&tabela, 579, novo));
-
-// Conferindo quantidade de ocupados
-printf("Total ocupados: %d\n", tabela.total_ocupados);
-
-// Conferindo posição da chave
-printf("Indice de 579: %d\n",
-       tabela_localizar(&tabela, 579));
-
-// Tentando atualizar uma chave inexistente
-printf("Atualizar 999: %d\n",
-       tabela_atualizar(&tabela, 999, novo));
-
-// Exibindo a estrutura
-printf("\n--- ESTRUTURA DA TABELA ---\n");
-
-tabela_exibir(&tabela);
-
+    char opcao[16];
+    for (;;) {
+        printf("\n=== Controle de estoque ===\n"
+               "1) Inserir    2) Consultar   3) Atualizar\n"
+               "4) Remover    5) Listar      6) Exibir estrutura\n"
+               "0) Sair\n");
+        if (!ler_linha("> ", opcao, sizeof opcao) || opcao[0] == '0') {
+            break;
+        }
+        int codigo;
+        Produto produto;
+        switch (opcao[0]) {
+        case '1':
+            if (ler_codigo(&codigo) && ler_produto(&produto)) {
+                int r = tabela_inserir(&tabela, codigo, produto);
+                if (r == 1)      printf("Produto inserido.\n");
+                else if (r == 0) printf("Ja existe produto com o codigo %d. Nada foi alterado.\n", codigo);
+                else             printf("Erro ao inserir.\n");
+            }
+            break;
+        case '2':
+            if (ler_codigo(&codigo)) {
+                int pos = tabela_localizar(&tabela, codigo);
+                if (pos == -1) {
+                    printf("Produto nao encontrado.\n");
+                } else {
+                    const Produto *p = &tabela.slots[pos].produto;
+                    printf("%s | Qtd: %d | Preco: %.2f (indice %d)\n",
+                           p->nome, p->quantidade, p->preco, pos);
+                }
+            }
+            break;
+        case '3':
+            if (ler_codigo(&codigo)) {
+                if (tabela_localizar(&tabela, codigo) == -1) {
+                    printf("Produto nao encontrado.\n");
+                } else if (ler_produto(&produto)) {
+                    tabela_atualizar(&tabela, codigo, produto);
+                    printf("Produto atualizado.\n");
+                }
+            }
+            break;
+        case '4':
+            if (ler_codigo(&codigo)) {
+                printf(tabela_remover(&tabela, codigo) ? "Produto removido.\n"
+                                                       : "Produto nao encontrado.\n");
+            }
+            break;
+        case '5':
+            tabela_listar(&tabela);
+            break;
+        case '6':
+            tabela_exibir(&tabela);
+            break;
+        default:
+            printf("Opcao invalida.\n");
+        }
+    }
 
     tabela_destruir(&tabela);
-
     return 0;
 }
